@@ -182,7 +182,7 @@ const Card: React.FC<{ children: React.ReactNode, className?: string, title?: st
   </div>
 );
 
-const Header: React.FC<{ onEndCode: () => void, codeStatus: CodeStatus }> = ({ onEndCode, codeStatus }) => (
+const Header: React.FC<{ onEndCode: () => void, codeStatus: CodeStatus, onToggleTheme: () => void, theme: 'light' | 'dark' }> = ({ onEndCode, codeStatus, onToggleTheme, theme }) => (
   <header className="flex items-center justify-between p-4 bg-brand-card rounded-lg mb-6">
     <div className="flex items-center">
       <HeartbeatIcon className="h-8 w-8 text-brand-accent-red" />
@@ -190,6 +190,12 @@ const Header: React.FC<{ onEndCode: () => void, codeStatus: CodeStatus }> = ({ o
       <span className="text-sm text-slate-400 ml-3 mt-1">Code Blue Documentation System</span>
     </div>
     <div className="flex items-center space-x-6">
+      <button
+        onClick={onToggleTheme}
+        className="bg-brand-subtle hover:opacity-90 transition-opacity text-white font-semibold py-2 px-3 rounded-md theme-toggle"
+      >
+        {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+      </button>
       <div className="text-right">
         <div className="text-slate-400 text-sm">Patient ID</div>
         <div className="font-mono text-lg">12345678</div>
@@ -505,9 +511,9 @@ const Modal: React.FC<{
     );
 };
 
-const CodeScreen: React.FC<{ state: AppState, dispatch: React.Dispatch<Action> }> = ({ state, dispatch }) => (
+const CodeScreen: React.FC<{ state: AppState, dispatch: React.Dispatch<Action>, onToggleTheme: () => void, theme: 'light' | 'dark' }> = ({ state, dispatch, onToggleTheme, theme }) => (
   <main className="p-6 max-w-7xl mx-auto">
-    <Header onEndCode={() => dispatch({ type: 'END_CODE' })} codeStatus={state.codeStatus} />
+    <Header onEndCode={() => dispatch({ type: 'END_CODE' })} codeStatus={state.codeStatus} onToggleTheme={onToggleTheme} theme={theme} />
     {state.showRhythmAlert && <RhythmCheckAlert dispatch={dispatch} />}
     {state.showPrepareEpiAlert && <PrepareEpiAlert dispatch={dispatch} />}
     
@@ -538,9 +544,9 @@ const CodeScreen: React.FC<{ state: AppState, dispatch: React.Dispatch<Action> }
   </main>
 );
 
-const SummaryScreen: React.FC<{ state: AppState, dispatch: React.Dispatch<Action> }> = ({ state, dispatch }) => (
+const SummaryScreen: React.FC<{ state: AppState, dispatch: React.Dispatch<Action>, onToggleTheme: () => void, theme: 'light' | 'dark' }> = ({ state, dispatch, onToggleTheme, theme }) => (
     <main className="p-6 max-w-4xl mx-auto">
-        <Header onEndCode={() => {}} codeStatus={state.codeStatus} />
+        <Header onEndCode={() => {}} codeStatus={state.codeStatus} onToggleTheme={onToggleTheme} theme={theme} />
         <div className="bg-brand-card rounded-lg p-6 mb-6">
             <div className="flex justify-between items-center">
                 <div>
@@ -569,7 +575,7 @@ const SummaryScreen: React.FC<{ state: AppState, dispatch: React.Dispatch<Action
 );
 
 
-const StartScreen: React.FC<{ onStart: () => void, onLoadState: (state: AppState) => void, previousStateStatus: CodeStatus | 'none' }> = ({ onStart, onLoadState, previousStateStatus }) => {
+const StartScreen: React.FC<{ onStart: () => void, onLoadState: (state: AppState) => void, previousStateStatus: CodeStatus | 'none', onToggleTheme: () => void, theme: 'light' | 'dark' }> = ({ onStart, onLoadState, previousStateStatus, onToggleTheme, theme }) => {
     
     const handleAction = () => {
         const savedStateJSON = localStorage.getItem(CPR_STATE_KEY);
@@ -588,7 +594,10 @@ const StartScreen: React.FC<{ onStart: () => void, onLoadState: (state: AppState
 
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
+        <div className="flex flex-col items-center justify-center min-h-screen text-center p-4 relative">
+            <button onClick={onToggleTheme} className="absolute top-4 right-4 bg-brand-subtle hover:opacity-90 transition-opacity text-white font-semibold py-2 px-3 rounded-md theme-toggle">
+                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            </button>
             <HeartbeatTricolorIcon className="h-24 w-24 mb-4"/>
             <h1 className="text-5xl font-bold mb-2">CPR Track Record</h1>
             <p className="text-slate-400 max-w-xl mb-8">
@@ -618,6 +627,20 @@ const App = () => {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const [isInitialized, setIsInitialized] = useState(false);
   const [previousStateStatus, setPreviousStateStatus] = useState<CodeStatus | 'none'>('none');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('theme');
+    return (saved === 'light' || saved === 'dark') ? (saved as 'light' | 'dark') : 'dark';
+  });
+
+  useEffect(() => {
+    const isLight = theme === 'light';
+    document.body.classList.toggle('light', isLight);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  }, []);
 
   // Main timer tick
   useEffect(() => {
@@ -690,12 +713,12 @@ const App = () => {
   const renderContent = () => {
     switch (state.codeStatus) {
         case 'active':
-            return <CodeScreen state={state} dispatch={dispatch} />;
+            return <CodeScreen state={state} dispatch={dispatch} onToggleTheme={toggleTheme} theme={theme} />;
         case 'review':
-            return <SummaryScreen state={state} dispatch={dispatch} />;
+            return <SummaryScreen state={state} dispatch={dispatch} onToggleTheme={toggleTheme} theme={theme} />;
         case 'inactive':
         default:
-            return <StartScreen onStart={handleStart} onLoadState={loadState} previousStateStatus={previousStateStatus} />;
+            return <StartScreen onStart={handleStart} onLoadState={loadState} previousStateStatus={previousStateStatus} onToggleTheme={toggleTheme} theme={theme} />;
     }
   };
 

@@ -1,0 +1,54 @@
+/* Light mode overrides */
+body.light {
+  background-color: #f8fafc !important; /* slate-50 */
+  color: #0f172a !important; /* slate-900 */
+}
+
+/* Card surfaces */
+body.light .bg-brand-card {
+  background-color: #ffffff !important;
+}
+
+/* Elements using brand-dark background become light surfaces */
+body.light .bg-brand-dark {
+  background-color: #f1f5f9 !important; /* slate-100 */
+}
+
+/* Semi-transparent brand-dark backgrounds */
+body.light .bg-brand-dark\/50 {
+  background-color: rgba(241, 245, 249, 0.6) !important; /* slate-100 @ ~60% */
+}
+
+/* Subtle surface color */
+body.light .bg-brand-subtle {
+  background-color: #e2e8f0 !important; /* slate-200 */
+}
+body.light .bg-brand-subtle\/50 {
+  background-color: rgba(226, 232, 240, 0.5) !important; /* slate-200 @ 50% */
+}
+
+/* Inputs/selects that explicitly use brand-dark backgrounds */
+body.light input.bg-brand-dark,
+body.light textarea.bg-brand-dark,
+body.light select.bg-brand-dark {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Subtle text tones tuned for light */
+body.light .text-slate-200 { color: #0f172a !important; /* elevate default to dark on light bg */ }
+body.light .text-slate-300 { color: #475569 !important; /* slate-600 */ }
+body.light .text-slate-400 { color: #475569 !important; /* slate-600 */ }
+body.light .text-slate-500 { color: #334155 !important; /* slate-700 */ }
+
+/* Borders */
+body.light .border-brand-subtle { border-color: #cbd5e1 !important; /* slate-300 */ }
+
+/* Avoid white hover text on white cards */
+body.light .bg-brand-card .hover\:text-white:hover { color: #0f172a !important; }
+
+/* Theme toggle buttons: ensure readable text on light backgrounds */
+body.light .theme-toggle { color: #0f172a !important; }
+
+/* Placeholder color tweak for light */
+body.light .placeholder-slate-500::placeholder { color: #64748b !important; /* slate-500 */ }

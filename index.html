@@ -36,7 +36,9 @@
 <link rel="stylesheet" href="/index.css">
 </head>
   <body class="bg-brand-dark text-slate-200 font-sans">
+    <script>try{if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');}}catch(e){}</script>
     <div id="root"></div>
+    <link rel="stylesheet" href="/theme.css">
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
